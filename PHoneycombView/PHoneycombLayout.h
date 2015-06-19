@@ -31,6 +31,9 @@
 @end
 
 @interface PHoneycombLayout : UICollectionViewLayout<UIGestureRecognizerDelegate>
+{
+    float itemY;
+}
 @property (nonatomic, assign) NSInteger margin;
 @property (nonatomic, assign) NSInteger oX;
 @property (nonatomic, assign) BOOL setUped;

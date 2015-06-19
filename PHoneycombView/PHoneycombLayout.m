@@ -165,39 +165,42 @@ P_CGPointAdd(CGPoint point1, CGPoint point2)
     UICollectionViewLayoutAttributes *attributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
     
     UICollectionView *collection = self.collectionView;
+    itemY = SIZE/2+SIZE/5;
     if (indexPath.item %5 == 0)
     {
         float x = (screenWidth-SIZE)/2;
-        float y = 70;
-        attributes.center = CGPointMake(x+collection.contentOffset.x, (indexPath.item+5)/5*y+indexPath.item/5*100);
+//        float y = 70;
+        attributes.center = CGPointMake(x+collection.contentOffset.x, (indexPath.item+5)/5*itemY+indexPath.item/5*SIZE);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 1)
     {
         float x = (screenWidth-SIZE)/2;
-        float y = 70;
+//        float y = 70;
         x = x+SIZE;
-        attributes.center = CGPointMake(x + collection.contentOffset.x, (indexPath.item+5)/5*y+indexPath.item/5*100);
+        attributes.center = CGPointMake(x + collection.contentOffset.x, (indexPath.item+5)/5*itemY+indexPath.item/5*SIZE);
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 2)
     {
-        float y = 155;
-        attributes.center = CGPointMake(60, (indexPath.item+5)/5*y+indexPath.item/5*+15);
+        float y = itemY+SIZE * cos(M_PI * 30.0f / 180.0f);
+        attributes.center = CGPointMake((screenWidth-SIZE*3)/2+SIZE/2, (indexPath.item+5)/5*y+indexPath.item/5*+(SIZE-SIZE * cos(M_PI * 30.0f / 180.0f)));
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 3)
     {
-        float y = 155;
-        attributes.center = CGPointMake(160, (indexPath.item+5)/5*y+indexPath.item/5*+15);
+//        float y = 155;
+        float y = itemY+SIZE * cos(M_PI * 30.0f / 180.0f);
+        attributes.center = CGPointMake((screenWidth-SIZE*3)/2+SIZE*1.5, (indexPath.item+5)/5*y+indexPath.item/5*+(SIZE-SIZE * cos(M_PI * 30.0f / 180.0f)));
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
     else if (indexPath.item %5 == 4)
     {
-        float y = 155;
-        attributes.center = CGPointMake(260, (indexPath.item+5)/5*y+indexPath.item/5*+15);
+        float y = itemY+SIZE * cos(M_PI * 30.0f / 180.0f);
+        attributes.center = CGPointMake((screenWidth-SIZE*3)/2+SIZE*2.5, (indexPath.item+5)/5*y+indexPath.item/5*+(SIZE-SIZE * cos(M_PI * 30.0f / 180.0f)));
         attributes.size = CGSizeMake(SIZE, SIZE * cos(M_PI * 30.0f / 180.0f));
     }
+    NSLog(@"%f",SIZE * cos(M_PI * 30.0f / 180.0f));
     return attributes;
 }
 
