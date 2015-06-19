@@ -13,11 +13,13 @@
 
 static NSString * const reuseIdentifier = @"Cell";
 
-@interface ViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,PHoneycombLayoutDataSource,PHoneycombLayoutDelegateFlowLayout>
+@interface ViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,PHoneycombLayoutDataSource,PHoneycombLayoutDelegateFlowLayout,PHoneycombCellDelegate>
 {
     UICollectionView *myC;
     NSMutableArray *titleArr;
     UIButton *rBtn;
+    PHoneycombCell *myCell;
+    BOOL status;
 }
 
 @end
@@ -28,7 +30,7 @@ static NSString * const reuseIdentifier = @"Cell";
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     titleArr = [[NSMutableArray array] init];
-    for (NSInteger i = 1; i <= 100; i++) {
+    for (NSInteger i = 1; i <= 20; i++) {
         NSString *name = [NSString stringWithFormat:@"%ld",i];
         [titleArr addObject:name];
     }
@@ -56,6 +58,7 @@ static NSString * const reuseIdentifier = @"Cell";
     myC.scrollEnabled = YES;
     [myC registerClass:[PHoneycombCell class] forCellWithReuseIdentifier:reuseIdentifier];
     [self.view addSubview:myC];
+    status = NO;
     
 }
 
@@ -64,18 +67,26 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    PHoneycombCell *cell = nil;
-    if (cell == nil) {
-        cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    myCell = nil;
+    if (myCell == nil) {
+        myCell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
     }
     else
     {
-        while ([cell.contentView.subviews lastObject] != nil) {
-            [(UIView *)[cell.contentView.subviews lastObject] removeFromSuperview];
+        while ([myCell.contentView.subviews lastObject] != nil) {
+            [(UIView *)[myCell.contentView.subviews lastObject] removeFromSuperview];
         }
     }
-    cell.titleLabel.text = [NSString stringWithFormat:@"%@",titleArr[indexPath.row]];
-    return cell;
+    myCell.delegate = self;
+    if (status) {
+        [myCell showDeleteBtn];
+    }
+    else
+    {
+        [myCell hideDeleteBtn];
+    }
+    myCell.titleLabel.text = [NSString stringWithFormat:@"%@",titleArr[indexPath.row]];
+    return myCell;
 }
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
@@ -84,10 +95,9 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)fromIndexPath willMoveToIndexPath:(NSIndexPath *)toIndexPath {
-    PHoneycombCell *cell = titleArr[fromIndexPath.item];
-    
+    myCell = titleArr[fromIndexPath.item];
     [titleArr removeObjectAtIndex:fromIndexPath.item];
-    [titleArr insertObject:cell atIndex:toIndexPath.item];
+    [titleArr insertObject:myCell atIndex:toIndexPath.item];
 }
 
 - (BOOL)collectionView:(UICollectionView *)collectionView canMoveItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -99,43 +109,40 @@ static NSString * const reuseIdentifier = @"Cell";
     return YES;
 }
 
--(void)addAct:(UIButton *)sender
-{
-    [titleArr insertObject:[NSString stringWithFormat:@"%d",(arc4random() %1000)] atIndex:titleArr.count];
-    [myC reloadData];
-}
-
--(void)killAct:(UIButton *)sender
-{
-#warning 暂时只能随机一个个删除
-    if (!titleArr.count) {
-        return;
-    }
-    NSArray *visibleIndexPaths = [myC indexPathsForVisibleItems];
-    NSArray *sortedIndexPaths = [visibleIndexPaths sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        NSIndexPath *path1 = (NSIndexPath *)obj1;
-        NSIndexPath *path2 = (NSIndexPath *)obj2;
-        return [path1 compare:path2];
-    }];
-    NSIndexPath *toRemove = [visibleIndexPaths objectAtIndex:(arc4random() % sortedIndexPaths.count)];
-    
-    [self removeIndexPath:toRemove];
-}
-
-- (void)removeIndexPath:(NSIndexPath *)indexPath {
-    if(!titleArr.count || indexPath.row > titleArr.count)
-    {
-        return;
-    }
-    
+-(void)modelCellEvent:(PHoneycombCell *)cell {
+    NSIndexPath *indexPath = [myC indexPathForCell:cell];
     [myC performBatchUpdates:^{
         NSInteger index = indexPath.row;
         [titleArr removeObjectAtIndex:index];
         [myC deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
     } completion:^(BOOL done) {
         [myC reloadData];
+        [myC scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row-1 inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:YES];
+        
     }];
 }
+
+-(void)addAct:(UIButton *)sender
+{
+    [titleArr insertObject:[NSString stringWithFormat:@"%d",(arc4random() %1000)] atIndex:titleArr.count];
+    [myC reloadData];
+    [myC scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:titleArr.count-1 inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:YES];
+}
+
+-(void)killAct:(UIButton *)sender
+{
+    if (sender.isSelected) {
+        rBtn.selected = NO;
+        status = NO;
+    }
+    else
+    {
+        rBtn.selected = YES;
+        status = YES;
+    }
+    [myC reloadData];
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
