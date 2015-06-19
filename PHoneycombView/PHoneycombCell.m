@@ -44,6 +44,7 @@
     [polygonPath closePath];
     [UIColor.orangeColor setFill];
     [polygonPath fill];
+    
     CAShapeLayer *maskLayer = [CAShapeLayer layer];
     maskLayer.path = [polygonPath CGPath];
     
